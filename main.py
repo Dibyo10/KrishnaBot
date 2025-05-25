@@ -1,4 +1,3 @@
-# main.py
 import time
 import os
 import re
@@ -114,9 +113,6 @@ def detect_tone(text: str) -> str:
 
 # --- Verse Reference Extraction ---
 def extract_chapter_and_verse(text: str) -> dict:
-    """
-    Extracts Gita reference like 'Gita 2:47' and returns chapter, verse, and full reference.
-    """
     match = re.search(r"(Gita|Bhagavad Gita)\s*(\d{1,2}):(\d{1,2})", text, re.IGNORECASE)
     if match:
         chapter = int(match.group(2))
@@ -134,11 +130,11 @@ class QuestionRequest(BaseModel):
     question: str
 
 @app.post("/ask")
-def ask(question: str):
+def ask(request: QuestionRequest):
     if not vectorstore:
         raise HTTPException(status_code=500, detail="Chatbot not ready: FAISS index not loaded.")
 
-    user_q = question.strip()
+    user_q = request.question.strip()
     tone = detect_tone(user_q)
     tone_instruction = tone_preambles.get(tone, "")
     system_prompt = SystemMessage(content=base_system_prompt_text + "\n\n" + tone_instruction)
